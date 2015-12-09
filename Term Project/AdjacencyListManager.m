@@ -30,48 +30,47 @@
 
 
 
--(void)createAdjacencyListWithRadius:(int)radius {
+-(void)createAdjacencyListWithRadius:(float)radius {
     self.radius = radius;
-    int cylinderRadius = 1000;
+    float cylinderRadius = .02 / self.adjacencyList.count;
     [self sortNodesByXPos];
     
     //    for (int i = 0; i < self.sortedNodes.count; i++) {
     //        Node* currNode = [self.adjacencyList objectForKey: self.sortedNodes[i]];
     //        NSLog(@"%f", [currNode.x floatValue]);
     //    }
-    
-//    Node* tempNode = [self.adjacencyList objectForKey:self.sortedNodes[0]];
-//    tempNode.x = @(0.25);
-//    tempNode.y = @(0.25);
-//    
-//    tempNode = [self.adjacencyList objectForKey:self.sortedNodes[1]];
-//    tempNode.x = @(0.35);
-//    tempNode.y = @(0.35);
-    
+
     for (int i = 0; i < self.sortedNodes.count; i++) {
         Node* currNode = [self.adjacencyList objectForKey:self.sortedNodes[i]];
-        NSInteger x1,x2,y1,y2,z1,z2;
-        x1 = [currNode.x integerValue];
-        y1 = [currNode.y integerValue];
-        z1 = [currNode.z integerValue];
+//        NSLog(@"Looking at node %d with x value %f", currNode.nodeID, [currNode.x floatValue]);
+        
+        double x1,x2,y1,y2,z1,z2;
+        x1 = [currNode.x doubleValue];
+        y1 = [currNode.y doubleValue];
+        z1 = [currNode.z doubleValue];
         
         int nextNodeIndex = i + 1;
         if (nextNodeIndex < self.sortedNodes.count) {
             while (nextNodeIndex < self.sortedNodes.count) {
                 Node* nextNode = [self.adjacencyList objectForKey: self.sortedNodes[nextNodeIndex]];
                 
-                x2 = [nextNode.x integerValue];
-                y2 = [nextNode.y integerValue];
-                z2 = [nextNode.z integerValue];
+//                NSLog(@"Comparing against node %d with x value %f", nextNode.nodeID, [nextNode.x floatValue]);
                 
-                float distance = sqrt( pow((x1 - x2),2) + pow((y1 - y2),2) );
+                x2 = [nextNode.x floatValue];
+                y2 = [nextNode.y floatValue];
+                z2 = [nextNode.z floatValue];
                 
-                if (([nextNode.x floatValue] - x1) <= radius && distance <= self.radius) {
+                double distance = sqrt( pow((x1 - x2),2) + pow((y1 - y2),2) );
+                
+                if ([nextNode.x floatValue] - x1 > radius) {
+                    break;
+                }
+                else if (distance <= self.radius) {
                     [currNode.connectedNodes addObject:nextNode];
                     [nextNode.connectedNodes addObject:currNode];
                     
                     // Find midpoint
-                    double midX, midY, midZ, rotation;
+                    float midX, midY, midZ, rotation;
                     midX = (x1 + x2) / 2;
                     midY = (y1 + y2) / 2;
                     midZ = (z1 + z2) / 2;
@@ -82,16 +81,16 @@
                     
                     if (y2 > y1) {
                         opposite = y2 - y1;
-                        theta = sin(opposite / hypotenuse);
+                        theta = asinf(opposite / hypotenuse);
                         rotation = M_PI_2 - theta;
                     }
                     else {
                         opposite = y1 - y2;
-                        theta = sin(opposite / hypotenuse);
+                        theta = asinf(opposite / hypotenuse);
                         rotation = M_PI_2 + theta;
                     }
                     
-                    NSLog(@"%f, %f, %f, %f, %f, %f, %f", x1, x2, y1, y2, distance, theta, rotation);
+//                    NSLog(@"%f, %f, %f, %f, %f, %f, %f", x1, x2, y1, y2, distance, theta, rotation);
                     
                     SCNCylinder* edge = [SCNCylinder cylinderWithRadius:cylinderRadius height:distance];
                     
@@ -102,13 +101,6 @@
                     edgeNode.rotation = SCNVector4Make(0.0, 0.0, 1.0, -rotation);
                     
                     currNode.edges[@(nextNodeIndex)] = edgeNode;
-                    
-                    // We don't need to store temp connections a second time
-                    //                    [nextNode.tempConnectedNodes addObject:currNode];
-                }
-                else {
-                    // Exceeded R window
-                    break;
                 }
                 nextNodeIndex++;
             }

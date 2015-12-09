@@ -101,7 +101,7 @@
 
 -(void)createAdjacencyListFromNodeList {
     NSString* graphType = [self.graphTypeControl labelForSegment:self.graphTypeControl.selectedSegment];
-    int radius = 50000;
+    float radius = 0.2;
     
     self.manager = [[AdjacencyListManager alloc] initWithNodeList:self.nodeList withGraphType:graphType];
     
@@ -128,7 +128,7 @@
     [self createScene];
     int numNodes = 0;
     SCNNode *graphNodes = [[SCNNode alloc] init];
-    float nodeRadius = 5000;
+    float nodeRadius = .2 / self.adjacencyList.count;
     for (id key in self.adjacencyList) {
         SCNSphere* nodeSphere = [SCNSphere sphereWithRadius:nodeRadius];
         

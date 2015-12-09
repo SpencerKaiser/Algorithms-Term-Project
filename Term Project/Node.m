@@ -8,7 +8,7 @@
 
 #import "Node.h"
 
-#define precision 100000
+#define precision 1000000.0
 
 @interface Node ()
 
@@ -36,7 +36,7 @@
 -(NSNumber*)rand {
     // Generate a random value between 0.0 and #precision+1
     // Return result divided by #precision
-    return @(arc4random_uniform(precision + 1));
+    return @(arc4random_uniform(precision + 1) / precision);
 }
 
 @end

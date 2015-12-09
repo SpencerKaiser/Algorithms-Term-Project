@@ -12,7 +12,7 @@
 @property (strong, nonatomic) NSMutableDictionary* adjacencyList;
 
 -(id)initWithNodeList:(NSMutableDictionary*)nodeList withGraphType:(NSString*)graphType;
--(void)createAdjacencyListWithRadius:(int)radius;
+-(void)createAdjacencyListWithRadius:(float)radius;
 @end
 
 
