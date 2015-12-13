@@ -21,26 +21,19 @@
 -(NSMutableDictionary*)createAdjacencyListWithNodeList: (NSMutableDictionary*)nodeList andRadius:(float)radius {
     self.radius = radius;
     NSArray* sortedNodes = [self sortNodesByXPos:nodeList];
+    NSLog(@"Node List Sorted");
     NSMutableDictionary* adjacencyList = nodeList;
-    
-//        for (int i = 0; i < self.sortedNodes.count; i++) {
-//            Node* currNode = [self.adjacencyList objectForKey: self.sortedNodes[i]];
-//            NSLog(@"%f", [currNode.x floatValue]);
-//        }
     
     for (int i = 0; i < sortedNodes.count; i++) {
         Node* currNode = [nodeList objectForKey:sortedNodes[i]];
         
-//        NSLog(@"Inspecting node %d", currNode.nodeID);
-        
         int nextNodeIndex = i + 1;
         
         if (nextNodeIndex < sortedNodes.count) {               // Make sure index of next node is in range
-//            NSLog(@"Looking at first comparison node");
             while (nextNodeIndex < sortedNodes.count) {        // Continue through remaining nodes until end of list or break
                 Node* nextNode = [adjacencyList objectForKey: sortedNodes[nextNodeIndex]];
                 
-                if (([currNode.x floatValue] - [nextNode.x floatValue]) > self.radius) {
+                if (([nextNode.x floatValue] - [currNode.x floatValue]) > self.radius) {
                     // Exceeded R radius on X-axis
                     break;
                 }
