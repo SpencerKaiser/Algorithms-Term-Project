@@ -130,4 +130,8 @@
     return sortedNodes;
 }
 
+-(void)dealloc {
+    NSLog(@"Adjacency List Manager Deallocated");
+}
+
 @end

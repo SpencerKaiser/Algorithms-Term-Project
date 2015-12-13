@@ -77,6 +77,7 @@ typedef enum {
     NSMutableDictionary* nodeList = [self createNodeList];
     
     // Create adjacency list from node list
+    [self deallocAdjacencyList];
     self.adjacencyList = [self createAdjacencyListFromNodeList:nodeList];
     
     // Graph adjacency list
@@ -115,7 +116,14 @@ typedef enum {
     return nodeList;
 }
 
-
+-(void)deallocAdjacencyList {
+    for (id key in self.adjacencyList) {
+        Node* currNode = self.adjacencyList[key];
+        currNode.edges = nil;
+        currNode.connectedNodes = nil;
+    }
+    self.adjacencyList = nil;
+}
 
 -(NSMutableDictionary*)createAdjacencyListFromNodeList:(NSMutableDictionary*)nodeList {
     NSInteger averageDegree, numNodes;
@@ -210,6 +218,7 @@ typedef enum {
             [graphNodes addChildNode:edgeNode];
             numEdges++;
         }
+        node.edges = nil;   // Remove references to edges within the graph
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -220,7 +229,6 @@ typedef enum {
     int numNodes = (int)self.adjacencyList.count;
     
     NSLog(@"Nodes: %d\nEdges: %f\nAverage Degree: %f", numNodes, numEdges, 2.0*(numEdges/self.adjacencyList.count));
-//    NSLog(@"Average X: %f\nAverage Y: %f\nAverage Z: %f", avgX/numNodes,avgY/numNodes,avgZ/numNodes);
 }
 
 
