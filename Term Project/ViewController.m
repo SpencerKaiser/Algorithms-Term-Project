@@ -219,12 +219,8 @@ typedef enum {
     
     int numNodes = (int)self.adjacencyList.count;
     
-    NSLog(@"Nodes: %lu\nEdges: %f\nAverage Degree: %f", (unsigned long)self.adjacencyList.count, numEdges, 2.0*(numEdges/self.adjacencyList.count));
-    NSLog(@"Average X: %f\nAverage Y: %f\nAverage Z: %f", avgX/numNodes,avgY/numNodes,avgZ/numNodes);
-    float camX = self.graphSceneView.pointOfView.position.x;
-    float camY = self.graphSceneView.pointOfView.position.y;
-    float camZ = self.graphSceneView.pointOfView.position.z;
-    NSLog(@"Camera Position: %f, %f, %f", camX, camY, camZ);
+    NSLog(@"Nodes: %d\nEdges: %f\nAverage Degree: %f", numNodes, numEdges, 2.0*(numEdges/self.adjacencyList.count));
+//    NSLog(@"Average X: %f\nAverage Y: %f\nAverage Z: %f", avgX/numNodes,avgY/numNodes,avgZ/numNodes);
 }
 
 
