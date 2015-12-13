@@ -10,11 +10,5 @@
 
 @interface ViewController : NSViewController
 
-typedef enum {
-    square,
-    disc,
-    sphere
-} GraphType;
-
 @end
 

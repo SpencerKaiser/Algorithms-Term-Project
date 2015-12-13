@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		0938191F1C1628D0000B5174 /* AdjacencyListManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 0938191E1C1628D0000B5174 /* AdjacencyListManager.m */; };
 		093819241C1740F3000B5174 /* SceneKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 093819231C1740F3000B5174 /* SceneKit.framework */; };
+		0950E7221C1CA19F00AD3C37 /* SphereNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 0950E7211C1CA19F00AD3C37 /* SphereNode.m */; };
+		0950E7251C1CBD1F00AD3C37 /* DiskNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 0950E7241C1CBD1F00AD3C37 /* DiskNode.m */; };
 		09A455BD1C160A7D0020D863 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 09A455BC1C160A7D0020D863 /* AppDelegate.m */; };
 		09A455C01C160A7D0020D863 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 09A455BF1C160A7D0020D863 /* main.m */; };
 		09A455C31C160A7D0020D863 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 09A455C21C160A7D0020D863 /* ViewController.m */; };
@@ -40,6 +42,10 @@
 		0938191D1C1628D0000B5174 /* AdjacencyListManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdjacencyListManager.h; sourceTree = "<group>"; };
 		0938191E1C1628D0000B5174 /* AdjacencyListManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AdjacencyListManager.m; sourceTree = "<group>"; };
 		093819231C1740F3000B5174 /* SceneKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SceneKit.framework; path = System/Library/Frameworks/SceneKit.framework; sourceTree = SDKROOT; };
+		0950E7201C1CA19F00AD3C37 /* SphereNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphereNode.h; sourceTree = "<group>"; };
+		0950E7211C1CA19F00AD3C37 /* SphereNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SphereNode.m; sourceTree = "<group>"; };
+		0950E7231C1CBD1F00AD3C37 /* DiskNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DiskNode.h; sourceTree = "<group>"; };
+		0950E7241C1CBD1F00AD3C37 /* DiskNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DiskNode.m; sourceTree = "<group>"; };
 		09A455B81C160A7D0020D863 /* Term Project.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Term Project.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		09A455BB1C160A7D0020D863 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		09A455BC1C160A7D0020D863 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -57,6 +63,7 @@
 		09A455DF1C160A7D0020D863 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		09A455EB1C16121F0020D863 /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Node.h; sourceTree = "<group>"; };
 		09A455EC1C16121F0020D863 /* Node.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Node.m; sourceTree = "<group>"; };
+		09CD43DB1C18C94B00E05D7A /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +92,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0950E71F1C1CA17700AD3C37 /* Nodes */ = {
+			isa = PBXGroup;
+			children = (
+				09A455EB1C16121F0020D863 /* Node.h */,
+				09A455EC1C16121F0020D863 /* Node.m */,
+				0950E7201C1CA19F00AD3C37 /* SphereNode.h */,
+				0950E7211C1CA19F00AD3C37 /* SphereNode.m */,
+				0950E7231C1CBD1F00AD3C37 /* DiskNode.h */,
+				0950E7241C1CBD1F00AD3C37 /* DiskNode.m */,
+			);
+			name = Nodes;
+			sourceTree = "<group>";
+		};
 		09A455AF1C160A7C0020D863 = {
 			isa = PBXGroup;
 			children = (
@@ -115,8 +135,8 @@
 				09A455C21C160A7D0020D863 /* ViewController.m */,
 				0938191D1C1628D0000B5174 /* AdjacencyListManager.h */,
 				0938191E1C1628D0000B5174 /* AdjacencyListManager.m */,
-				09A455EB1C16121F0020D863 /* Node.h */,
-				09A455EC1C16121F0020D863 /* Node.m */,
+				0950E71F1C1CA17700AD3C37 /* Nodes */,
+				09CD43DB1C18C94B00E05D7A /* Constants.h */,
 				09A455C41C160A7D0020D863 /* Assets.xcassets */,
 				09A455C61C160A7D0020D863 /* Main.storyboard */,
 				09A455C91C160A7D0020D863 /* Info.plist */,
@@ -280,10 +300,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0950E7251C1CBD1F00AD3C37 /* DiskNode.m in Sources */,
 				09A455C31C160A7D0020D863 /* ViewController.m in Sources */,
 				09A455C01C160A7D0020D863 /* main.m in Sources */,
 				0938191F1C1628D0000B5174 /* AdjacencyListManager.m in Sources */,
 				09A455BD1C160A7D0020D863 /* AppDelegate.m in Sources */,
+				0950E7221C1CA19F00AD3C37 /* SphereNode.m in Sources */,
 				09A455ED1C16121F0020D863 /* Node.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

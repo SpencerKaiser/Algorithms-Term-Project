@@ -8,21 +8,29 @@
 
 #import "ViewController.h"
 #import "Node.h"
+#import "SphereNode.h"
+#import "DiskNode.h"
 #import "AdjacencyListManager.h"
 @import SceneKit;
 
 @interface ViewController ()
 // DATA STRUCTURES + CLASS OBJECTS
-@property (strong, nonatomic) NSMutableDictionary* nodeList;
 @property (strong, nonatomic) NSMutableDictionary* adjacencyList;
 @property (strong, nonatomic) AdjacencyListManager* manager;
 @property (assign) GraphType graphType;
+
+typedef enum {
+    NodeTypeSquare,
+    NodeTypeDisk,
+    NodeTypeSphere
+} NodeType;
 
 // UI ELEMENTS
 @property (weak) IBOutlet NSButton *createRGGButton;
 @property (weak) IBOutlet NSTextField *numNodesTextField;
 @property (weak) IBOutlet NSSegmentedControl *graphTypeControl;
 @property (weak) IBOutlet SCNView *graphSceneView;
+@property (weak) IBOutlet NSTextField *avgDegreeField;
 
 @end
 
@@ -33,27 +41,19 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.graphTypeControl.selectedSegment = 0;
-    
-    // Do any additional setup after loading the view.
+    self.graphTypeControl.selectedSegment = 0;              // Set graph type default to Square
 }
 
 -(void)viewDidAppear {
-    [self createScene];
+    [self createScene];                                     // Instiantiate SceneKit Scene
 }
 
 - (void)setRepresentedObject:(id)representedObject {
     [super setRepresentedObject:representedObject];
-    
-    // Update the view, if already loaded.
-}
-
-- (void)textDidEndEditing:(NSNotification *)aNotification {
-    [self generateGraph];
 }
 
 - (IBAction)createRGGButtonPressed:(id)sender {
-    [self generateGraph];
+    [self generateGraph];                                   // Create graph using given chosen settings (type, num nodes, etc.)
 }
 
 - (IBAction)graphTypeDidChange:(id)sender {
@@ -61,145 +61,171 @@
     if ([selected isEqualToString:@"Square"]) {
         self.graphType = square;
     }
-    else if ([selected isEqualToString:@"Disc"]) {
-        self.graphType = disc;
+    else if ([selected isEqualToString:@"Disk"]) {
+        self.graphType = disk;
     }
     else if ([selected isEqualToString:@"Sphere"]) {
         self.graphType = sphere;
     }
-    
-    //    if (self.adjacencyList) {
-    //        [self graphAdjacencyList];
-    //    }
 }
 
 
+
+#pragma mark - Core
 -(void)generateGraph {
-    [self createNodeList];
+    // Create list of nodes
+    NSMutableDictionary* nodeList = [self createNodeList];
     
-    [self createAdjacencyListFromNodeList];
-    self.adjacencyList = self.nodeList;
+    // Create adjacency list from node list
+    self.adjacencyList = [self createAdjacencyListFromNodeList:nodeList];
     
-    [self graphAdjacencyList];
+    // Graph adjacency list
+    [self graphAdjacencyList];                  // Create visualizations from adjacency list
 }
 
 
-- (void)createNodeList {
-    NSInteger numNodes = [self.numNodesTextField integerValue];
-    if (!numNodes || numNodes <= 0) {
+- (NSMutableDictionary*)createNodeList {
+    NSInteger numNodes = [self.numNodesTextField integerValue];         // Get # nodes from ui element
+    if (!numNodes || numNodes <= 0) {                                   // Default # nodes = 1000
         numNodes = 1000;
     }
     
-    self.nodeList = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary* nodeList = [[NSMutableDictionary alloc] init];                 // Create node list data structure
     
-    for (int i = 0; i < numNodes; i++) {
-        Node* newNode = [[Node alloc] initWithID:i];
-        self.nodeList[@(i)] = newNode;
-        //self.nodeList[ [NSString stringWithFormat:@"%d", i] ] = newNode;
-    }
-}
-
--(void)createAdjacencyListFromNodeList {
-    NSString* graphType = [self.graphTypeControl labelForSegment:self.graphTypeControl.selectedSegment];
-    int radius = 50000;
-    
-    self.manager = [[AdjacencyListManager alloc] initWithNodeList:self.nodeList withGraphType:graphType];
-    
-    [self.manager createAdjacencyListWithRadius:radius];
-}
-
--(void)graphAdjacencyList {
     switch (self.graphType) {
         case square:
-        {
-            [self graphSquare];
+            for (int i = 0; i < numNodes; i++) {
+                Node* newNode = [[Node alloc] initWithID:i];                    // Create new node with id of current index
+                nodeList[@(i)] = newNode;                                  // Store the new node in the nodeList
+            }
             break;
-        }
-        case disc:
+        case disk:
+            for (int i = 0; i < numNodes; i++) {
+                Node* newNode = [[DiskNode alloc] initWithID:i];                    // Create new node with id of current index
+                nodeList[@(i)] = newNode;                                  // Store the new node in the nodeList
+            }
             break;
         case sphere:
-            break;
-        default:
+            for (int i = 0; i < numNodes; i++) {
+                Node* newNode = [[SphereNode alloc] initWithID:i];                    // Create new node with id of current index
+                nodeList[@(i)] = newNode;                                  // Store the new node in the nodeList
+            }
             break;
     }
+    return nodeList;
 }
 
--(void)graphSquare {
-    [self createScene];
-    int numNodes = 0;
-    SCNNode *graphNodes = [[SCNNode alloc] init];
-    float nodeRadius = 5000;
-    for (id key in self.adjacencyList) {
-        SCNSphere* nodeSphere = [SCNSphere sphereWithRadius:nodeRadius];
-        
-        Node* node = [self.adjacencyList objectForKey:key];
-        
-        node.nodePointer = nodeSphere;      // Store pointer to sphere for later edge connections
-        
-        nodeSphere.firstMaterial.diffuse.contents = [NSColor colorWithWhite:50.0 alpha:1.0];
-        //        nodeSphere.firstMaterial.specular.contents = [NSColor colorWithWhite:0.0 alpha:1.0];
-        
-        SCNNode* graphNode = [SCNNode nodeWithGeometry:nodeSphere];
-        
-        graphNode.position = SCNVector3Make([node.x floatValue], [node.y floatValue], 0.0);
-        if (numNodes <= INFINITY) {
-            [graphNodes addChildNode:graphNode];
-        }
-        numNodes++;
+
+
+-(NSMutableDictionary*)createAdjacencyListFromNodeList:(NSMutableDictionary*)nodeList {
+    NSInteger averageDegree, numNodes;
+    
+    averageDegree = [self.avgDegreeField integerValue];
+    if (averageDegree < 0) {
+        averageDegree = 5;
     }
     
-    SCNNode* edges = [[SCNNode alloc] init];
-    // MAKE EDGES
-    int numEdges = 0;
+    numNodes = nodeList.count;
+    
+    float radius;
+    float graphOccupiedArea = 0.0;              // Total area of the graph
+    
+    switch (self.graphType) {
+        case square:
+            graphOccupiedArea = 1.0;
+            radius = sqrtf( (graphOccupiedArea * (averageDegree + 1)) / (M_PI * numNodes) );
+            break;
+        case disk:
+            graphOccupiedArea = M_PI * pow(0.5, 2);                 //πr^2
+            radius = sqrtf( (graphOccupiedArea * (averageDegree + 1)) / (M_PI * numNodes) );
+            break;
+        case sphere:
+            graphOccupiedArea = (4.0/3) * M_PI * pow(0.5, 3);           //4/3πr^3
+            radius = sqrtf( (4.0 * averageDegree) / numNodes );
+            break;
+    }
+    
+    self.manager = [[AdjacencyListManager alloc] init];
+    
+    return [self.manager createAdjacencyListWithNodeList:nodeList andRadius:radius];
+}
+
+
+
+-(void)graphAdjacencyList {
+    float avgX = 0.0,avgY = 0.0,avgZ = 0.0;
+    // Release previous nodes
+    //    NSArray* childNodes = self.graphSceneView.scene.rootNode.childNodes;
+    //    for (int i = 0; i < childNodes.count; i++) {
+    //        SCNNode* childNode = childNodes[i];
+    //        [childNode removeFromParentNode];
+    //    }
+    
+    [self createScene];
+    
+    NSLog(@"Finished Creating Adjacency List");
+    
+    float numEdges = 0.0;
+    
+    // Create node to contain all graph nodes (vertices and edges)
+    SCNNode *graphNodes = [[SCNNode alloc] init];
+    
+    // Create reusable sphere
+    float nodeRadius = 0.25 / sqrtf(self.adjacencyList.count);
+    if (self.graphType == disk) {
+        nodeRadius *= .8;
+    }
+    else if (self.graphType == sphere) {
+        nodeRadius *= 2;
+    }
+    
+    SCNSphere* nodeSphere = [SCNSphere sphereWithRadius:nodeRadius];
+    nodeSphere.firstMaterial.diffuse.contents = [NSColor colorWithDeviceCyan:1.0 magenta:0.0 yellow:0.0 black:0.2 alpha:1.0];
+    nodeSphere.firstMaterial.specular.contents = [NSColor colorWithWhite:0.0 alpha:1.0];
+    
+    // UI Correction for rotating sphere
+    if (self.graphType == sphere) {
+        SCNSphere* wobbleCorrection = [SCNSphere sphereWithRadius:1.0];
+        wobbleCorrection.firstMaterial.diffuse.contents = [NSColor colorWithWhite:0.0 alpha:0.0];
+        SCNNode* wobbleCorrectionNode = [SCNNode nodeWithGeometry:wobbleCorrection];
+        wobbleCorrectionNode.position = SCNVector3Make(0.0, 0.0, 0.0);
+        [graphNodes addChildNode:wobbleCorrectionNode];
+    }
+    
+    
+    // Create nodes and edges for each vertex in the adjacency list
     for (id key in self.adjacencyList) {
+        // Create node for vertex
         Node* node = [self.adjacencyList objectForKey:key];
-        for (id key in node.edges) {
-            SCNNode* edgeNode = [node.edges objectForKey:key];
-            
-            //             SCNCylinder* edge = [node.edges objectForKey:key];
-            //             edge.firstMaterial.diffuse.contents = [NSColor colorWithWhite:20.0 alpha:1.0];
-            //             SCNNode* edgeNode = [SCNNode nodeWithGeometry:edge];
-            //             edgeNode.position = SCNVector3Make([node.x floatValue], [node.y floatValue], 0.0);
-            if (numEdges <= INFINITY) {
-                [edges addChildNode:edgeNode];
-            }
+        avgX += [node.x floatValue];
+        avgY += [node.y floatValue];
+        avgZ += [node.z floatValue];
+        
+        SCNNode* vertexNode = [SCNNode nodeWithGeometry:nodeSphere];
+        vertexNode.position = SCNVector3Make([node.x floatValue], [node.y floatValue], [node.z floatValue]);
+        [graphNodes addChildNode:vertexNode];
+        
+        for (int i = 0; i < node.edges.count; i++) {
+            SCNNode* edgeNode = node.edges[i];
+            [graphNodes addChildNode:edgeNode];
             numEdges++;
         }
     }
     
-//    SCNCylinder* newEdge = [SCNCylinder cylinderWithRadius:0.5 height:0.5];
-//    SCNNode* edgeNode = [SCNNode nodeWithGeometry:newEdge];
-//    edgeNode.position = SCNVector3Make(0.0, 0.0, 0.0);
-//    [edges addChildNode:edgeNode];
-    
-//    SCNSphere* nodeSphere = [SCNSphere sphereWithRadius:nodeRadius];
-//    nodeSphere.firstMaterial.diffuse.contents = [NSColor colorWithWhite:50.0 alpha:1.0];
-//    SCNNode* graphNode1 = [SCNNode nodeWithGeometry:nodeSphere];
-//    graphNode1.position = SCNVector3Make(0.5, 0.5, 0.0);
-//    
-//    SCNNode* graphNode2 = [SCNNode nodeWithGeometry:nodeSphere];
-//    graphNode2.position = SCNVector3Make(1.0, 0.5, 0.0);
-//    
-//    SCNNode* graphNode3 = [SCNNode nodeWithGeometry:nodeSphere];
-//    graphNode3.position = SCNVector3Make(0.5, 1.0, 0.0);
-//    
-//    SCNNode* graphNode4 = [SCNNode nodeWithGeometry:nodeSphere];
-//    graphNode4.position = SCNVector3Make(0.0, 0.5, 0.0);
-//
-//    [graphNodes addChildNode:graphNode1];
-//    [graphNodes addChildNode:graphNode2];
-//    [graphNodes addChildNode:graphNode3];
-//    [graphNodes addChildNode:graphNode4];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.graphSceneView.scene.rootNode addChildNode:graphNodes];
+    });
     
     
-    NSLog(@"Num Edges: %d", numEdges);
-    [self.graphSceneView.scene.rootNode addChildNode:graphNodes];
-    [self.graphSceneView.scene.rootNode addChildNode:edges];
+    int numNodes = (int)self.adjacencyList.count;
+    
+    NSLog(@"Nodes: %lu\nEdges: %f\nAverage Degree: %f", (unsigned long)self.adjacencyList.count, numEdges, 2.0*(numEdges/self.adjacencyList.count));
+    NSLog(@"Average X: %f\nAverage Y: %f\nAverage Z: %f", avgX/numNodes,avgY/numNodes,avgZ/numNodes);
+    float camX = self.graphSceneView.pointOfView.position.x;
+    float camY = self.graphSceneView.pointOfView.position.y;
+    float camZ = self.graphSceneView.pointOfView.position.z;
+    NSLog(@"Camera Position: %f, %f, %f", camX, camY, camZ);
 }
-
-
-
-
 
 
 
@@ -211,6 +237,19 @@
     self.graphSceneView.allowsCameraControl = true;
     self.graphSceneView.autoenablesDefaultLighting = true;
     self.graphSceneView.backgroundColor = [NSColor colorWithWhite:0.0 alpha:1.0];
+    
+    SCNNode* lightNode = [[SCNNode alloc] init];
+    lightNode.light = [[SCNLight alloc] init];
+    lightNode.light.type = SCNLightTypeAmbient;
+    lightNode.light.color = [NSColor colorWithWhite:0.67 alpha:1.0];
+    [self.graphSceneView.scene.rootNode addChildNode:lightNode];
+    
+    SCNNode* omniLightNode = [[SCNNode alloc] init];
+    omniLightNode.light = [[SCNLight alloc] init];
+    omniLightNode.light.type = SCNLightTypeOmni;
+    omniLightNode.light.color = [NSColor colorWithWhite:0.75 alpha:1.0];
+    omniLightNode.position = SCNVector3Make(0.5, 0.5, 1.0);
+    [self.graphSceneView.scene.rootNode addChildNode:omniLightNode];
 }
 
 

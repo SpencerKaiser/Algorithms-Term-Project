@@ -11,10 +11,13 @@
 
 @interface Node : NSObject
 @property int nodeID;
-@property NSNumber *x, *y, *z;
-@property NSMutableArray* connectedNodes;
-@property NSMutableDictionary* edges;
-@property SCNSphere* nodePointer;
+@property (strong, nonatomic) NSNumber *x, *y, *z;
+@property (strong, nonatomic) NSMutableArray* connectedNodes;
+@property (strong, nonatomic) NSMutableArray* edges;
+//@property (strong, nonatomic) SCNSphere* nodePointer;
+@property (assign, nonatomic) SCNVector3 locationVector;
 
 -(id)initWithID:(int)ID;
+-(NSNumber*)rand;
+-(float)getDistanceToNode:(Node*)destinationNode;
 @end

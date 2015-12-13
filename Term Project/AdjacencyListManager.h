@@ -11,8 +11,13 @@
 @interface AdjacencyListManager : NSObject
 @property (strong, nonatomic) NSMutableDictionary* adjacencyList;
 
--(id)initWithNodeList:(NSMutableDictionary*)nodeList withGraphType:(NSString*)graphType;
--(void)createAdjacencyListWithRadius:(int)radius;
+typedef enum {
+    square,
+    disk,
+    sphere
+} GraphType;
+
+-(NSMutableDictionary*)createAdjacencyListWithNodeList:(NSMutableDictionary*)nodeList andRadius:(float)radius;
 @end
 
 

@@ -8,130 +8,124 @@
 
 #import "AdjacencyListManager.h"
 #import "Node.h"
+
 @import SceneKit;
 
 @interface AdjacencyListManager ()
-
-@property (strong, nonatomic) NSString* graphType;
 @property (assign) float radius;
-@property (strong, nonatomic) NSArray* sortedNodes;
-
 @end
 
 @implementation AdjacencyListManager
 
--(id)initWithNodeList:(NSMutableDictionary*)nodeList withGraphType:(NSString*)graphType {
-    self = [super init];
-    
-    self.adjacencyList = nodeList;
-    
-    return self;
-}
 
-
-
--(void)createAdjacencyListWithRadius:(int)radius {
+-(NSMutableDictionary*)createAdjacencyListWithNodeList: (NSMutableDictionary*)nodeList andRadius:(float)radius {
     self.radius = radius;
-    int cylinderRadius = 1000;
-    [self sortNodesByXPos];
+    NSArray* sortedNodes = [self sortNodesByXPos:nodeList];
+    NSMutableDictionary* adjacencyList = nodeList;
     
-    //    for (int i = 0; i < self.sortedNodes.count; i++) {
-    //        Node* currNode = [self.adjacencyList objectForKey: self.sortedNodes[i]];
-    //        NSLog(@"%f", [currNode.x floatValue]);
-    //    }
+//        for (int i = 0; i < self.sortedNodes.count; i++) {
+//            Node* currNode = [self.adjacencyList objectForKey: self.sortedNodes[i]];
+//            NSLog(@"%f", [currNode.x floatValue]);
+//        }
     
-//    Node* tempNode = [self.adjacencyList objectForKey:self.sortedNodes[0]];
-//    tempNode.x = @(0.25);
-//    tempNode.y = @(0.25);
-//    
-//    tempNode = [self.adjacencyList objectForKey:self.sortedNodes[1]];
-//    tempNode.x = @(0.35);
-//    tempNode.y = @(0.35);
-    
-    for (int i = 0; i < self.sortedNodes.count; i++) {
-        Node* currNode = [self.adjacencyList objectForKey:self.sortedNodes[i]];
-        NSInteger x1,x2,y1,y2,z1,z2;
-        x1 = [currNode.x integerValue];
-        y1 = [currNode.y integerValue];
-        z1 = [currNode.z integerValue];
+    for (int i = 0; i < sortedNodes.count; i++) {
+        Node* currNode = [nodeList objectForKey:sortedNodes[i]];
+        
+//        NSLog(@"Inspecting node %d", currNode.nodeID);
         
         int nextNodeIndex = i + 1;
-        if (nextNodeIndex < self.sortedNodes.count) {
-            while (nextNodeIndex < self.sortedNodes.count) {
-                Node* nextNode = [self.adjacencyList objectForKey: self.sortedNodes[nextNodeIndex]];
+        
+        if (nextNodeIndex < sortedNodes.count) {               // Make sure index of next node is in range
+//            NSLog(@"Looking at first comparison node");
+            while (nextNodeIndex < sortedNodes.count) {        // Continue through remaining nodes until end of list or break
+                Node* nextNode = [adjacencyList objectForKey: sortedNodes[nextNodeIndex]];
                 
-                x2 = [nextNode.x integerValue];
-                y2 = [nextNode.y integerValue];
-                z2 = [nextNode.z integerValue];
+                if (([currNode.x floatValue] - [nextNode.x floatValue]) > self.radius) {
+                    // Exceeded R radius on X-axis
+                    break;
+                }
+
+                float distance = [currNode getDistanceToNode:nextNode];
                 
-                float distance = sqrt( pow((x1 - x2),2) + pow((y1 - y2),2) );
-                
-                if (([nextNode.x floatValue] - x1) <= radius && distance <= self.radius) {
+                if (distance <= self.radius) {      // Next node is within R distance on the X axis and distance < R
                     [currNode.connectedNodes addObject:nextNode];
                     [nextNode.connectedNodes addObject:currNode];
-                    
-                    // Find midpoint
-                    double midX, midY, midZ, rotation;
-                    midX = (x1 + x2) / 2;
-                    midY = (y1 + y2) / 2;
-                    midZ = (z1 + z2) / 2;
-                    
-                    
-                    double opposite, theta;
-                    double hypotenuse = distance;
-                    
-                    if (y2 > y1) {
-                        opposite = y2 - y1;
-                        theta = sin(opposite / hypotenuse);
-                        rotation = M_PI_2 - theta;
-                    }
-                    else {
-                        opposite = y1 - y2;
-                        theta = sin(opposite / hypotenuse);
-                        rotation = M_PI_2 + theta;
-                    }
-                    
-                    NSLog(@"%f, %f, %f, %f, %f, %f, %f", x1, x2, y1, y2, distance, theta, rotation);
-                    
-                    SCNCylinder* edge = [SCNCylinder cylinderWithRadius:cylinderRadius height:distance];
-                    
-                    edge.firstMaterial.diffuse.contents = [NSColor colorWithWhite:20.0 alpha:1.0];
-                    SCNNode* edgeNode = [SCNNode nodeWithGeometry:edge];
-                    edgeNode.position = SCNVector3Make(midX, midY, 0.0);
-                    
-                    edgeNode.rotation = SCNVector4Make(0.0, 0.0, 1.0, -rotation);
-                    
-                    currNode.edges[@(nextNodeIndex)] = edgeNode;
-                    
                     // We don't need to store temp connections a second time
-                    //                    [nextNode.tempConnectedNodes addObject:currNode];
-                }
-                else {
-                    // Exceeded R window
-                    break;
+                    // [nextNode.tempConnectedNodes addObject:currNode];
+                    
+                    
+                    // Create edge for graphing
+                    SCNVector3 edgePoints[] = {
+                        currNode.locationVector,         // Start Pos
+                        nextNode.locationVector          // End Pos
+                    };
+                    
+                    int indices[] = {0, 1};
+                    
+                    SCNGeometrySource *edgeSourceData = [SCNGeometrySource geometrySourceWithVertices:edgePoints
+                                                                                              count:2];
+                    NSData *edgeIndexData = [NSData dataWithBytes:indices
+                                                           length:sizeof(indices)];
+                    SCNGeometryElement *edgeElement = [SCNGeometryElement geometryElementWithData:edgeIndexData
+                                                                                    primitiveType:SCNGeometryPrimitiveTypeLine
+                                                                                   primitiveCount:1
+                                                                                    bytesPerIndex:sizeof(int)];
+                    SCNGeometry *line = [SCNGeometry geometryWithSources:@[edgeSourceData]
+                                                                elements:@[edgeElement]];
+                    SCNNode *lineNode = [SCNNode nodeWithGeometry:line];
+                    
+                    [currNode.edges addObject:lineNode];
+                    
+                    
+                    
+                    
+                    
+                    // CYLINDER CODE
+                    // Find midpoint
+//                    float midX, midY, midZ, rotation;
+//                    midX = (x1 + x2) / 2.0;
+//                    midY = (y1 + y2) / 2.0;
+//                    midZ = (z1 + z2) / 2.0;
+//                    
+//                    
+//                    float opposite, theta;
+//                    float hypotenuse = distance;
+//                    
+//                    if (y2 > y1) {
+//                        opposite = y2 - y1;
+//                        theta = sin(opposite / hypotenuse);
+//                        rotation = M_PI_2 - theta;
+//                    }
+//                    else {
+//                        opposite = y1 - y2;
+//                        theta = sin(opposite / hypotenuse);
+//                        rotation = M_PI_2 + theta;
+//                    }
+                    
+//                    NSLog(@"%f, %f, %f, %f, %f, %f, %f", x1, x2, y1, y2, distance, theta, rotation);
+//                    
+//                    SCNCylinder* edge = [SCNCylinder cylinderWithRadius:cylinderRadius height:distance];
+//                    
+//                    edge.firstMaterial.diffuse.contents = [NSColor colorWithWhite:20.0 alpha:1.0];
+//                    SCNNode* edgeNode = [SCNNode nodeWithGeometry:edge];
+//                    edgeNode.position = SCNVector3Make(midX, midY, 0.0);
+//                    
+//                    edgeNode.rotation = SCNVector4Make(0.0, 0.0, 1.0, -rotation);
+//                    
+//                    currNode.edges[@(nextNodeIndex)] = edgeNode;
+                    
+
                 }
                 nextNodeIndex++;
             }
         }
     }
-    
-    //    int degreeCount = 0;
-    //    for (int i = 0; i < self.sortedNodes.count; i++) {
-    //        Node* currNode = [self.adjacencyList objectForKey: self.sortedNodes[i]];
-    //        degreeCount += currNode.edges.count;
-    //        NSLog(@"%lu", (unsigned long)currNode.edges.count);
-    //    }
-    //    float avgDegree = degreeCount/self.sortedNodes.count;
-    //    NSLog(@"Average Degree: %f", avgDegree);
+    return adjacencyList;
 }
 
--(bool)distanceBetweenNodesIsWithinRadius:(Node*)currNode and:(Node*)nextNode {
-    float distance = sqrt( pow(([currNode.x floatValue] - [nextNode.x floatValue]),2) + pow(([currNode.y floatValue] - [nextNode.y floatValue]),2) );
-    return distance <= self.radius;
-}
 
--(void) sortNodesByXPos {
-    self.sortedNodes = [self.adjacencyList keysSortedByValueUsingComparator: ^(Node* node1, Node* node2) {
+-(NSArray*) sortNodesByXPos:(NSMutableDictionary*)nodeList {
+    NSArray* sortedNodes = [nodeList keysSortedByValueUsingComparator: ^(Node* node1, Node* node2) {
         if ([node1.x doubleValue] > [node2.x doubleValue]) {
             return (NSComparisonResult)NSOrderedDescending;
         }
@@ -140,6 +134,7 @@
         }
         return (NSComparisonResult)NSOrderedSame;
     }];
+    return sortedNodes;
 }
 
 @end
