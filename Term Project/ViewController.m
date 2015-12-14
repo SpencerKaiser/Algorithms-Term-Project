@@ -79,9 +79,11 @@ typedef enum {
     // Create adjacency list from node list
     [self deallocAdjacencyList];
     self.adjacencyList = [self createAdjacencyListFromNodeList:nodeList];
+    NSLog(@"Finished Creating Adjacency List");
     
     // Graph adjacency list
     [self graphAdjacencyList];                  // Create visualizations from adjacency list
+    NSMutableArray* slfOrdering = [self.manager smallestLastFirst:self.adjacencyList];
 }
 
 
@@ -171,12 +173,11 @@ typedef enum {
     
     [self createScene];
     
-    NSLog(@"Finished Creating Adjacency List");
-    
     float numEdges = 0.0;
     
     // Create node to contain all graph nodes (vertices and edges)
-    SCNNode *graphNodes = [[SCNNode alloc] init];
+    SCNNode* graphNodes = [[SCNNode alloc] init];
+    SCNNode* edgeNodes = [[SCNNode alloc] init];
     
     // Create reusable sphere
     float nodeRadius = 0.25 / sqrtf(self.adjacencyList.count);
@@ -215,18 +216,37 @@ typedef enum {
         
         for (int i = 0; i < node.edges.count; i++) {
             SCNNode* edgeNode = node.edges[i];
-            [graphNodes addChildNode:edgeNode];
+//            if (edgeNodes.childNodes.count >= 50000) {
+//                SCNNode* flattenedEdgeNodes = [edgeNodes flattenedClone];
+//                [self.graphSceneView.scene.rootNode addChildNode:flattenedEdgeNodes];
+//                edgeNodes = [[SCNNode alloc] init];
+//            }
+            [edgeNodes addChildNode:edgeNode];
             numEdges++;
         }
         node.edges = nil;   // Remove references to edges within the graph
     }
+    NSLog(@"Updating Scene");
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.graphSceneView.scene.rootNode addChildNode:graphNodes];
-    });
+    SCNNode* flattenedGraphNodes = [graphNodes flattenedClone];
+    [self.graphSceneView.scene.rootNode addChildNode:flattenedGraphNodes];
     
+    if (edgeNodes.childNodes.count > 30000) {
+        NSArray* partialNodes = [edgeNodes.childNodes subarrayWithRange:NSMakeRange(0, 30000)];
+        edgeNodes = [[SCNNode alloc] init];
+        for (int i = 0; i < partialNodes.count; i++) {
+            [edgeNodes addChildNode:partialNodes[i]];
+        }
+    }
+    
+    SCNNode* flattenedEdgeNodes = [edgeNodes flattenedClone];
+    [self.graphSceneView.scene.rootNode addChildNode:flattenedEdgeNodes];
     
     int numNodes = (int)self.adjacencyList.count;
+    
+    if (numNodes + numEdges > 30000) {
+        self.graphSceneView.allowsCameraControl = false;
+    }
     
     NSLog(@"Nodes: %d\nEdges: %f\nAverage Degree: %f", numNodes, numEdges, 2.0*(numEdges/self.adjacencyList.count));
 }

@@ -11,7 +11,7 @@
 
 @interface Node : NSObject
 @property int nodeID;
-@property (strong, nonatomic) NSNumber *x, *y, *z;
+@property (strong, nonatomic) NSNumber *x, *y, *z, *degreeWhenDeleted, *color;
 @property (strong, nonatomic) NSMutableArray* connectedNodes;
 @property (strong, nonatomic) NSMutableArray* edges;
 //@property (strong, nonatomic) SCNSphere* nodePointer;

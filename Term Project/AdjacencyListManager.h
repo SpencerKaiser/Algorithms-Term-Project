@@ -18,6 +18,7 @@ typedef enum {
 } GraphType;
 
 -(NSMutableDictionary*)createAdjacencyListWithNodeList:(NSMutableDictionary*)nodeList andRadius:(float)radius;
+-(NSMutableArray*)smallestLastFirst:(NSMutableDictionary*)adjacencyList;
 @end
 
 

@@ -31,7 +31,6 @@
 -(void)dealloc {
     self.connectedNodes = nil;
     self.edges = nil;
-//    NSLog(@"Node Deallocated");
 }
 
 

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0913986B1C1E7C5600CFD9F3 /* Settings-2-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 0913986A1C1E7C5600CFD9F3 /* Settings-2-icon.png */; };
 		0938191F1C1628D0000B5174 /* AdjacencyListManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 0938191E1C1628D0000B5174 /* AdjacencyListManager.m */; };
 		093819241C1740F3000B5174 /* SceneKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 093819231C1740F3000B5174 /* SceneKit.framework */; };
 		0950E7221C1CA19F00AD3C37 /* SphereNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 0950E7211C1CA19F00AD3C37 /* SphereNode.m */; };
@@ -39,6 +40,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0913986A1C1E7C5600CFD9F3 /* Settings-2-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Settings-2-icon.png"; sourceTree = "<group>"; };
 		0938191D1C1628D0000B5174 /* AdjacencyListManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdjacencyListManager.h; sourceTree = "<group>"; };
 		0938191E1C1628D0000B5174 /* AdjacencyListManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AdjacencyListManager.m; sourceTree = "<group>"; };
 		093819231C1740F3000B5174 /* SceneKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SceneKit.framework; path = System/Library/Frameworks/SceneKit.framework; sourceTree = SDKROOT; };
@@ -148,6 +150,7 @@
 		09A455BE1C160A7D0020D863 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				0913986A1C1E7C5600CFD9F3 /* Settings-2-icon.png */,
 				09A455BF1C160A7D0020D863 /* main.m */,
 			);
 			name = "Supporting Files";
@@ -274,6 +277,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0913986B1C1E7C5600CFD9F3 /* Settings-2-icon.png in Resources */,
 				09A455C51C160A7D0020D863 /* Assets.xcassets in Resources */,
 				09A455C81C160A7D0020D863 /* Main.storyboard in Resources */,
 			);
