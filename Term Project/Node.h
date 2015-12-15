@@ -14,7 +14,6 @@
 @property (strong, nonatomic) NSNumber *x, *y, *z, *degreeWhenDeleted, *color;
 @property (strong, nonatomic) NSMutableArray* connectedNodes;
 @property (strong, nonatomic) NSMutableDictionary *edges, *bipartite;
-//@property (strong, nonatomic) SCNSphere* nodePointer;
 @property (assign, nonatomic) SCNVector3 locationVector;
 
 -(id)initWithID:(int)ID;

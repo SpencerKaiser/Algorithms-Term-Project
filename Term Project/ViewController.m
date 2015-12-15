@@ -214,6 +214,32 @@ typedef enum {
 
 -(void)graphAdjacencyList {
     [self generateColors];
+    
+    Node* maxDegreeNode = self.adjacencyList[@(0)];
+    Node* minDegreeNode = self.adjacencyList[@(0)];
+    
+    for (id key in self.adjacencyList) {
+        Node* currNode = self.adjacencyList[key];
+        if (currNode.connectedNodes.count > maxDegreeNode.connectedNodes.count) {
+            maxDegreeNode = currNode;
+        }
+        else if (currNode.connectedNodes.count < minDegreeNode.connectedNodes.count) {
+            minDegreeNode = currNode;
+        }
+    }
+    
+    maxDegreeNode.color = [NSNumber numberWithInt:(int)self.colors.count - 1];
+    for (int i = 0; i < maxDegreeNode.connectedNodes.count; i++) {
+        Node* connectedNode = maxDegreeNode.connectedNodes[i];
+        connectedNode.color = [NSNumber numberWithInt:(int)self.colors.count - 1];
+    }
+    
+    minDegreeNode.color = [NSNumber numberWithInt:(int)self.colors.count - 2];
+    for (int i = 0; i < minDegreeNode.connectedNodes.count; i++) {
+        Node* connectedNode = minDegreeNode.connectedNodes[i];
+        connectedNode.color = [NSNumber numberWithInt:(int)self.colors.count - 2];
+    }
+
     float avgX = 0.0,avgY = 0.0,avgZ = 0.0;
     // Release previous nodes
     //    NSArray* childNodes = self.graphSceneView.scene.rootNode.childNodes;
@@ -345,8 +371,12 @@ typedef enum {
     self.colors = [[NSMutableArray alloc] init];
     for (int i = 0; i < self.numColors; i++) {
         NSColor* newColor = [NSColor colorWithDeviceRed:[self rand] green:[self rand] blue:[self rand] alpha:1.0];
+//        NSColor* newColor = [NSColor colorWithDeviceWhite:1.0 alpha:1.0];
         [self.colors addObject: newColor];
     }
+    
+    [self.colors addObject:[NSColor colorWithDeviceRed:1.0 green:0.0 blue:0.0 alpha:1.0]];
+    [self.colors addObject:[NSColor colorWithDeviceRed:0.0 green:1.0 blue:0.0 alpha:1.0]];
 }
 
 -(float)rand {

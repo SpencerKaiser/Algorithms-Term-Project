@@ -125,6 +125,7 @@
     NSMutableDictionary* degreeBuckets = [[NSMutableDictionary alloc] init];
     NSMutableDictionary* degreeMapping = [[NSMutableDictionary alloc] init];
     int maxDegree = 0;
+    int minDegree = INFINITY;
     
     // Iterate through all nodes, place them in their respective degree buckets
     for (id key in adjacencyList) {
@@ -132,6 +133,9 @@
         int degree = (int)currNode.connectedNodes.count;
         if (degree > maxDegree) {
             maxDegree = degree;
+        }
+        if (degree < minDegree) {
+            minDegree = degree;
         }
         
         NSMutableArray* degreeQueue = degreeBuckets[@(degree)];
@@ -175,9 +179,11 @@
         if (smallestBucket.count == degreeMapping.count && !terminalClique) {
             terminalClique = [[NSMutableArray alloc] init];
             // Copy all items from smallest bucket into terminal clique bucket
+
             for (int j = 0; j < smallestBucket.count; j++) {
                 [terminalClique addObject:smallestBucket[j]];
             }
+            NSLog(@"Terminal Clique Size: %d", (int)terminalClique.count);
         }
         
         // Get reference to smallest bucket
@@ -232,6 +238,9 @@
     NSMutableDictionary* colorNodes = [self colorNodes:finalSLF];
     [self selectBipartiteSubgraphs:colorNodes];
     
+    NSLog(@"Num Colors: %d", (int)colorNodes.count);
+    NSLog(@"Max Degree: %d", maxDegree);
+    NSLog(@"Min Degree: %d", minDegree);
     return colorNodes;
 }
 
@@ -356,6 +365,9 @@
     
     for (int i = 0; i < 3; i++) {
         BipartiteSubgraph* bipartite = bipartiteSubgraphs[i];
+        if (i == 0) {
+            NSLog(@"Max Bipartite Edge Count: %d", bipartite.edgeCount);
+        }
         if (bipartite) {
             NSMutableArray* subgraph1 = bipartite.subgraph1;
             for (int j = 0; j < subgraph1.count; j++) {
