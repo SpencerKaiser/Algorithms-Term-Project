@@ -9,7 +9,6 @@
 #import <Foundation/Foundation.h>
 
 @interface AdjacencyListManager : NSObject
-@property (strong, nonatomic) NSMutableDictionary* adjacencyList;
 
 typedef enum {
     square,

@@ -117,19 +117,22 @@
 }
 
 -(NSMutableArray*)smallestLastFirst:(NSMutableDictionary*)adjacencyList {
-//    NSMutableDictionary* smallestLastFirstData = [[NSMutableDictionary alloc] init];
+    //    NSMutableDictionary* smallestLastFirstData = [[NSMutableDictionary alloc] init];
     
-    NSMutableArray* finalSLFOrder = [[NSMutableArray alloc] initWithCapacity:adjacencyList.count];
+    NSMutableArray* reversedSLF = [[NSMutableArray alloc] initWithCapacity:adjacencyList.count];
     NSMutableArray* terminalClique;
     
     NSMutableDictionary* degreeBuckets = [[NSMutableDictionary alloc] init];
     NSMutableDictionary* degreeMapping = [[NSMutableDictionary alloc] init];
-    
+    int maxDegree = 0;
     
     // Iterate through all nodes, place them in their respective degree buckets
     for (id key in adjacencyList) {
         Node* currNode = adjacencyList[key];
         int degree = (int)currNode.connectedNodes.count;
+        if (degree > maxDegree) {
+            maxDegree = degree;
+        }
         
         NSMutableArray* degreeQueue = degreeBuckets[@(degree)];
         
@@ -147,15 +150,15 @@
     
     while (currNodeIndex < numNodes) {
         
-        if (degreeBuckets.count == 1) {
-            // SFL ordering complete
-            break;
-        }
+        //        if (degreeBuckets.count == 1) {
+        //            // SFL ordering complete
+        //            break;
+        //        }
         
         // Find smallest degree bucket
         int smallestBucketKey = 0;
         NSMutableArray* smallestBucket;
-        while (smallestBucketKey < degreeBuckets.count) {
+        while (smallestBucketKey <= maxDegree) {
             smallestBucket = [degreeBuckets objectForKey:@(smallestBucketKey)];
             // if smallest found
             if (smallestBucket && smallestBucket.count > 0) {
@@ -164,15 +167,17 @@
             smallestBucketKey++;
         }
         
-        if (!smallestBucket || smallestBucket.count == 0) {
-            // All buckets are empty
-            degreeBuckets = nil;
-            break;
-        }
-        else if (smallestBucket.count == degreeMapping.count && !terminalClique) {
-            
-            // TODO: Terminal clique not being saved correctly
-            terminalClique = smallestBucket;
+        //        if (!smallestBucket || smallestBucket.count == 0) {
+        //            // All buckets are empty
+        //            degreeBuckets = nil;
+        //            break;
+        //        }
+        if (smallestBucket.count == degreeMapping.count && !terminalClique) {
+            terminalClique = [[NSMutableArray alloc] init];
+            // Copy all items from smallest bucket into terminal clique bucket
+            for (int j = 0; j < smallestBucket.count; j++) {
+                [terminalClique addObject:smallestBucket[j]];
+            }
         }
         
         // Get reference to smallest bucket
@@ -180,7 +185,9 @@
         Node* lowestDegreeNode = [smallestBucket objectAtIndex:0];
         lowestDegreeNode.degreeWhenDeleted = @(smallestBucketKey);          // Add degree when deleted
         [smallestBucket removeObject:lowestDegreeNode];                     // Remove next node from existing bucket
-        [finalSLFOrder addObject:lowestDegreeNode];                         // Add to final SLF ordering
+        [reversedSLF addObject:lowestDegreeNode];                         // Add to final SLF ordering
+//        [finalSLFOrder insertObject:lowestDegreeNode atIndex:(numNodes - currNodeIndex - 1)];                         // Add to final SLF orderingˆ
+        // TODO INSERT NODE AT FRONT
         [degreeMapping removeObjectForKey:@(lowestDegreeNode.nodeID)];      // Remove node from degreeMapping
         
         
@@ -201,6 +208,7 @@
                 // If next smallest bucket does not exist, create it
                 if (!decrementedNodeBucket) {
                     decrementedNodeBucket = [[NSMutableArray alloc] init];
+                    degreeBuckets[@(degree - 1)] = decrementedNodeBucket;
                 }
                 
                 // Remove node from previous bucket
@@ -216,7 +224,12 @@
         currNodeIndex++;
     }
     
-    return finalSLFOrder;
+    NSMutableArray* finalSLF = [[NSMutableArray alloc] init];
+    for (int i = ((int)numNodes - 1); i >= 0; i--) {
+        [finalSLF addObject:reversedSLF[i]];
+    }
+    
+    return finalSLF;
 }
 
 

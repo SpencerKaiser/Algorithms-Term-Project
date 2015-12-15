@@ -228,8 +228,8 @@ typedef enum {
     }
     NSLog(@"Updating Scene");
     
-    SCNNode* flattenedGraphNodes = [graphNodes flattenedClone];
-    [self.graphSceneView.scene.rootNode addChildNode:flattenedGraphNodes];
+//    SCNNode* flattenedGraphNodes = [graphNodes flattenedClone];
+    [self.graphSceneView.scene.rootNode addChildNode:graphNodes];
     
     if (edgeNodes.childNodes.count > 30000) {
         NSArray* partialNodes = [edgeNodes.childNodes subarrayWithRange:NSMakeRange(0, 30000)];
@@ -239,8 +239,8 @@ typedef enum {
         }
     }
     
-    SCNNode* flattenedEdgeNodes = [edgeNodes flattenedClone];
-    [self.graphSceneView.scene.rootNode addChildNode:flattenedEdgeNodes];
+//    SCNNode* flattenedEdgeNodes = [edgeNodes flattenedClone];
+    [self.graphSceneView.scene.rootNode addChildNode:edgeNodes];
     
     int numNodes = (int)self.adjacencyList.count;
     
