@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		0913986B1C1E7C5600CFD9F3 /* Settings-2-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 0913986A1C1E7C5600CFD9F3 /* Settings-2-icon.png */; };
+		091398881C1F96E600CFD9F3 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 091398871C1F96E600CFD9F3 /* QuartzCore.framework */; };
+		091398A21C1F973100CFD9F3 /* CorePlot.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 091398971C1F970900CFD9F3 /* CorePlot.framework */; };
+		091398A41C1F97D100CFD9F3 /* CorePlot.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 091398971C1F970900CFD9F3 /* CorePlot.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		0938191F1C1628D0000B5174 /* AdjacencyListManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 0938191E1C1628D0000B5174 /* AdjacencyListManager.m */; };
 		093819241C1740F3000B5174 /* SceneKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 093819231C1740F3000B5174 /* SceneKit.framework */; };
 		0950E7221C1CA19F00AD3C37 /* SphereNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 0950E7211C1CA19F00AD3C37 /* SphereNode.m */; };
@@ -23,6 +26,48 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		091398961C1F970900CFD9F3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 091398891C1F970900CFD9F3 /* CorePlot.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8DC2EF5B0486A6940098B216;
+			remoteInfo = "CorePlot Mac";
+		};
+		091398981C1F970900CFD9F3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 091398891C1F970900CFD9F3 /* CorePlot.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 0730F600109492D800E95162;
+			remoteInfo = "UnitTests Mac";
+		};
+		0913989A1C1F970900CFD9F3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 091398891C1F970900CFD9F3 /* CorePlot.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = C38A09781A46185200D45436;
+			remoteInfo = "CorePlot iOS";
+		};
+		0913989C1C1F970900CFD9F3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 091398891C1F970900CFD9F3 /* CorePlot.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = C38A09821A46185300D45436;
+			remoteInfo = "UnitTests iOS";
+		};
+		0913989E1C1F970900CFD9F3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 091398891C1F970900CFD9F3 /* CorePlot.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = C38A09BA1A4619A900D45436;
+			remoteInfo = "CorePlot-CocoaTouch";
+		};
+		091398A01C1F970900CFD9F3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 091398891C1F970900CFD9F3 /* CorePlot.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = C38A09C41A4619A900D45436;
+			remoteInfo = "CorePlot-CocoaTouchTests";
+		};
 		09A455CF1C160A7D0020D863 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 09A455B01C160A7C0020D863 /* Project object */;
@@ -39,11 +84,27 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		091398A31C1F975400CFD9F3 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				091398A41C1F97D100CFD9F3 /* CorePlot.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		0913986A1C1E7C5600CFD9F3 /* Settings-2-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Settings-2-icon.png"; sourceTree = "<group>"; };
+		091398871C1F96E600CFD9F3 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		091398891C1F970900CFD9F3 /* CorePlot.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CorePlot.xcodeproj; path = "Term Project/core-plot/framework/CorePlot.xcodeproj"; sourceTree = "<group>"; };
 		0938191D1C1628D0000B5174 /* AdjacencyListManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdjacencyListManager.h; sourceTree = "<group>"; };
 		0938191E1C1628D0000B5174 /* AdjacencyListManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AdjacencyListManager.m; sourceTree = "<group>"; };
 		093819231C1740F3000B5174 /* SceneKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SceneKit.framework; path = System/Library/Frameworks/SceneKit.framework; sourceTree = SDKROOT; };
+		0939C67B1C20066C00B5752F /* BipartiteSubgraph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BipartiteSubgraph.h; sourceTree = "<group>"; };
 		0950E7201C1CA19F00AD3C37 /* SphereNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphereNode.h; sourceTree = "<group>"; };
 		0950E7211C1CA19F00AD3C37 /* SphereNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SphereNode.m; sourceTree = "<group>"; };
 		0950E7231C1CBD1F00AD3C37 /* DiskNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DiskNode.h; sourceTree = "<group>"; };
@@ -73,6 +134,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				091398A21C1F973100CFD9F3 /* CorePlot.framework in Frameworks */,
+				091398881C1F96E600CFD9F3 /* QuartzCore.framework in Frameworks */,
 				093819241C1740F3000B5174 /* SceneKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -94,6 +157,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0913988A1C1F970900CFD9F3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				091398971C1F970900CFD9F3 /* CorePlot.framework */,
+				091398991C1F970900CFD9F3 /* UnitTests.xctest */,
+				0913989B1C1F970900CFD9F3 /* CorePlot.framework */,
+				0913989D1C1F970900CFD9F3 /* UnitTests iOS.xctest */,
+				0913989F1C1F970900CFD9F3 /* libCorePlot-CocoaTouch.a */,
+				091398A11C1F970900CFD9F3 /* CorePlot-CocoaTouchTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		0950E71F1C1CA17700AD3C37 /* Nodes */ = {
 			isa = PBXGroup;
 			children = (
@@ -110,6 +186,8 @@
 		09A455AF1C160A7C0020D863 = {
 			isa = PBXGroup;
 			children = (
+				091398891C1F970900CFD9F3 /* CorePlot.xcodeproj */,
+				091398871C1F96E600CFD9F3 /* QuartzCore.framework */,
 				093819231C1740F3000B5174 /* SceneKit.framework */,
 				09A455BA1C160A7D0020D863 /* Term Project */,
 				09A455D11C160A7D0020D863 /* Term ProjectTests */,
@@ -137,6 +215,7 @@
 				09A455C21C160A7D0020D863 /* ViewController.m */,
 				0938191D1C1628D0000B5174 /* AdjacencyListManager.h */,
 				0938191E1C1628D0000B5174 /* AdjacencyListManager.m */,
+				0939C67B1C20066C00B5752F /* BipartiteSubgraph.h */,
 				0950E71F1C1CA17700AD3C37 /* Nodes */,
 				09CD43DB1C18C94B00E05D7A /* Constants.h */,
 				09A455C41C160A7D0020D863 /* Assets.xcassets */,
@@ -184,6 +263,7 @@
 				09A455B41C160A7C0020D863 /* Sources */,
 				09A455B51C160A7C0020D863 /* Frameworks */,
 				09A455B61C160A7C0020D863 /* Resources */,
+				091398A31C1F975400CFD9F3 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -263,6 +343,12 @@
 			mainGroup = 09A455AF1C160A7C0020D863;
 			productRefGroup = 09A455B91C160A7D0020D863 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 0913988A1C1F970900CFD9F3 /* Products */;
+					ProjectRef = 091398891C1F970900CFD9F3 /* CorePlot.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				09A455B71C160A7C0020D863 /* Term Project */,
@@ -271,6 +357,51 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		091398971C1F970900CFD9F3 /* CorePlot.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = CorePlot.framework;
+			remoteRef = 091398961C1F970900CFD9F3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		091398991C1F970900CFD9F3 /* UnitTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = UnitTests.xctest;
+			remoteRef = 091398981C1F970900CFD9F3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		0913989B1C1F970900CFD9F3 /* CorePlot.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = CorePlot.framework;
+			remoteRef = 0913989A1C1F970900CFD9F3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		0913989D1C1F970900CFD9F3 /* UnitTests iOS.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = "UnitTests iOS.xctest";
+			remoteRef = 0913989C1C1F970900CFD9F3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		0913989F1C1F970900CFD9F3 /* libCorePlot-CocoaTouch.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libCorePlot-CocoaTouch.a";
+			remoteRef = 0913989E1C1F970900CFD9F3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		091398A11C1F970900CFD9F3 /* CorePlot-CocoaTouchTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = "CorePlot-CocoaTouchTests.xctest";
+			remoteRef = 091398A01C1F970900CFD9F3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		09A455B61C160A7C0020D863 /* Resources */ = {

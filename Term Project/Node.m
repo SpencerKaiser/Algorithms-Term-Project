@@ -23,7 +23,8 @@
     [self generatePositionValues];
     self.locationVector = [self getVector];
     self.connectedNodes = [[NSMutableArray alloc] init];
-    self.edges = [[NSMutableArray alloc] init];
+    self.edges = [[NSMutableDictionary alloc] init];
+    self.bipartite = [[NSMutableDictionary alloc] init];
     
     return self;
 }

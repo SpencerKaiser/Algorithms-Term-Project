@@ -8,6 +8,7 @@
 
 #import "AdjacencyListManager.h"
 #import "Node.h"
+#import "BipartiteSubgraph.h"
 
 @import SceneKit;
 
@@ -67,8 +68,7 @@
                                                                 elements:@[edgeElement]];
                     SCNNode *lineNode = [SCNNode nodeWithGeometry:line];
                     
-                    [currNode.edges addObject:lineNode];
-                    
+                    currNode.edges[@(nextNode.nodeID)] = lineNode;
                     
                     
                     
@@ -116,7 +116,7 @@
     return adjacencyList;
 }
 
--(NSMutableArray*)smallestLastFirst:(NSMutableDictionary*)adjacencyList {
+-(NSMutableDictionary*)smallestLastFirst:(NSMutableDictionary*)adjacencyList {
     //    NSMutableDictionary* smallestLastFirstData = [[NSMutableDictionary alloc] init];
     
     NSMutableArray* reversedSLF = [[NSMutableArray alloc] initWithCapacity:adjacencyList.count];
@@ -186,7 +186,7 @@
         lowestDegreeNode.degreeWhenDeleted = @(smallestBucketKey);          // Add degree when deleted
         [smallestBucket removeObject:lowestDegreeNode];                     // Remove next node from existing bucket
         [reversedSLF addObject:lowestDegreeNode];                         // Add to final SLF ordering
-//        [finalSLFOrder insertObject:lowestDegreeNode atIndex:(numNodes - currNodeIndex - 1)];                         // Add to final SLF orderingˆ
+        //        [finalSLFOrder insertObject:lowestDegreeNode atIndex:(numNodes - currNodeIndex - 1)];                         // Add to final SLF orderingˆ
         // TODO INSERT NODE AT FRONT
         [degreeMapping removeObjectForKey:@(lowestDegreeNode.nodeID)];      // Remove node from degreeMapping
         
@@ -229,8 +229,165 @@
         [finalSLF addObject:reversedSLF[i]];
     }
     
-    return finalSLF;
+    NSMutableDictionary* colorNodes = [self colorNodes:finalSLF];
+    [self selectBipartiteSubgraphs:colorNodes];
+    
+    return colorNodes;
 }
+
+-(NSMutableDictionary*)colorNodes:(NSMutableArray*)slfOrdering {
+    NSMutableDictionary* nodesByColor = [[NSMutableDictionary alloc] init];
+    
+    // Iterate through all nodes
+    for (int i = 0; i < slfOrdering.count; i++) {
+        Node* currNode = slfOrdering[i];
+        NSMutableDictionary* connectedColors = [[NSMutableDictionary alloc] init];
+        NSNumber* color = [NSNumber numberWithInt:0];   // Initialize to color 0
+        
+        // Iterate through connected nodes and add connected colors to dictionary
+        for (int j = 0; j < currNode.connectedNodes.count; j++) {
+            Node* connectedNode = currNode.connectedNodes[j];
+            NSNumber* color = connectedNode.color;
+            
+            if (color) {
+                connectedColors[color] = @(1);
+            }
+        }
+        
+        // Iterate through all colors, find the lowest color which is not painted on a connected node and set as color for current node
+        for (int j = 0; j < connectedColors.count; j++) {
+            if (!connectedColors[@(j)]) {
+                color = [NSNumber numberWithInt:j];
+                break;
+            }
+            else {
+                color = [NSNumber numberWithInt:(j + 1)];
+            }
+        }
+        
+        if (!nodesByColor[color]) {
+            nodesByColor[color] = [[NSMutableArray alloc] init];
+        }
+        NSMutableArray* colorNodes = nodesByColor[color];
+        [colorNodes addObject:currNode];
+        
+        currNode.color = color;
+    }
+    return nodesByColor;
+}
+
+-(void)selectBipartiteSubgraphs:(NSMutableDictionary*)nodesByColor {
+    NSMutableArray* bipartiteSubgraphs = [[NSMutableArray alloc] init];
+    NSMutableArray* subgraph0 = nodesByColor[@(0)];
+    NSMutableArray* subgraph1 = nodesByColor[@(1)];
+    NSMutableArray* subgraph2 = nodesByColor[@(2)];
+    NSMutableArray* subgraph3 = nodesByColor[@(3)];
+    
+
+    // 0 + 1
+    if (subgraph0 && subgraph1) {
+        BipartiteSubgraph* bipartite = [[BipartiteSubgraph alloc] init];
+        bipartite.subgraph1 = subgraph0;
+        bipartite.subgraph2 = subgraph1;
+        
+        bipartite.edgeCount = [self calculateSharedEdges:subgraph0 :subgraph1 :1];
+        [bipartiteSubgraphs addObject:bipartite];
+    }
+    
+    // 0 + 2
+    if (subgraph0 && subgraph2) {
+        BipartiteSubgraph* bipartite = [[BipartiteSubgraph alloc] init];
+        bipartite.subgraph1 = subgraph0;
+        bipartite.subgraph2 = subgraph2;
+        
+        bipartite.edgeCount = [self calculateSharedEdges:subgraph0 :subgraph2 :2];
+        [bipartiteSubgraphs addObject:bipartite];
+    }
+    
+    // 0 + 3
+    if (subgraph0 && subgraph3) {
+        BipartiteSubgraph* bipartite = [[BipartiteSubgraph alloc] init];
+        bipartite.subgraph1 = subgraph0;
+        bipartite.subgraph2 = subgraph3;
+        
+        bipartite.edgeCount = [self calculateSharedEdges:subgraph0 :subgraph3 :3];
+        [bipartiteSubgraphs addObject:bipartite];
+    }
+    
+    // 1 + 2
+    if (subgraph1 && subgraph2) {
+        BipartiteSubgraph* bipartite = [[BipartiteSubgraph alloc] init];
+        bipartite.subgraph1 = subgraph1;
+        bipartite.subgraph2 = subgraph2;
+        
+        bipartite.edgeCount = [self calculateSharedEdges:subgraph1 :subgraph2 :2];
+        [bipartiteSubgraphs addObject:bipartite];
+    }
+ 
+    // 1 + 3
+    if (subgraph1 && subgraph3) {
+        BipartiteSubgraph* bipartite = [[BipartiteSubgraph alloc] init];
+        bipartite.subgraph1 = subgraph1;
+        bipartite.subgraph2 = subgraph3;
+        
+        bipartite.edgeCount = [self calculateSharedEdges:subgraph1 :subgraph3 :3];
+        [bipartiteSubgraphs addObject:bipartite];
+    }
+
+    // 2 + 3
+    if (subgraph2 && subgraph3) {
+        BipartiteSubgraph* bipartite = [[BipartiteSubgraph alloc] init];
+        bipartite.subgraph1 = subgraph2;
+        bipartite.subgraph2 = subgraph3;
+        
+        bipartite.edgeCount = [self calculateSharedEdges:subgraph2 :subgraph3 :3];
+        [bipartiteSubgraphs addObject:bipartite];
+    }
+    
+    [bipartiteSubgraphs sortUsingComparator: ^(BipartiteSubgraph* bipartite1, BipartiteSubgraph* bipartite2) {
+        if (bipartite1.edgeCount > bipartite2.edgeCount) {
+            return (NSComparisonResult)NSOrderedAscending;
+        }
+        else if (bipartite1.edgeCount < bipartite2.edgeCount) {
+            return (NSComparisonResult)NSOrderedDescending;
+        }
+        return (NSComparisonResult)NSOrderedSame;
+    }];
+    
+    for (int i = 0; i < 3; i++) {
+        BipartiteSubgraph* bipartite = bipartiteSubgraphs[i];
+        if (bipartite) {
+            NSMutableArray* subgraph1 = bipartite.subgraph1;
+            for (int j = 0; j < subgraph1.count; j++) {
+                Node* node = subgraph1[j];
+                node.bipartite[@(i)] = [NSNumber numberWithInt:1];
+            }
+            
+            NSMutableArray* subgraph2 = bipartite.subgraph2;
+            for (int j = 0; j < subgraph2.count; j++) {
+                Node* node = subgraph2[j];
+                node.bipartite[@(i)] = [NSNumber numberWithInt:1];
+            }
+            
+        }
+    }
+}
+
+-(int) calculateSharedEdges:(NSMutableArray*)colorNodes1 :(NSMutableArray*)colorNodes2 :(int)color2 {
+    int numEdges = 0;
+    for (int i = 0; i < colorNodes1.count; i++) {
+        Node* currNode = colorNodes1[i];
+        for (int j = 0; j < currNode.connectedNodes.count; j++) {
+            Node* connectedNode = currNode.connectedNodes[j];
+            if ([connectedNode.color intValue] == color2) {
+                numEdges++;
+            }
+        }
+    }
+    return numEdges;
+}
+
+
 
 
 -(NSArray*) sortNodesByXPos:(NSMutableDictionary*)nodeList {

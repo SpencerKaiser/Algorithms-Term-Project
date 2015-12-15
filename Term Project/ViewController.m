@@ -11,13 +11,24 @@
 #import "SphereNode.h"
 #import "DiskNode.h"
 #import "AdjacencyListManager.h"
+#import <CorePlot/CorePlot.h>
 @import SceneKit;
 
 @interface ViewController ()
 // DATA STRUCTURES + CLASS OBJECTS
 @property (strong, nonatomic) NSMutableDictionary* adjacencyList;
+@property (strong, nonatomic) NSMutableDictionary* colorData;
+@property (strong, nonatomic) NSMutableArray* colors;
+@property (assign, nonatomic) int numColors;
 @property (strong, nonatomic) AdjacencyListManager* manager;
 @property (assign) GraphType graphType;
+@property (assign) int graphState;
+@property (strong, nonatomic) SCNNode* bipartiteGraphNodes1;
+@property (strong, nonatomic) SCNNode* bipartiteEdgeNodes1;
+@property (strong, nonatomic) SCNNode* bipartiteGraphNodes2;
+@property (strong, nonatomic) SCNNode* bipartiteEdgeNodes2;
+@property (strong, nonatomic) SCNNode* otherGraphNodes;
+@property (strong, nonatomic) SCNNode* otherEdgeNodes;
 
 typedef enum {
     NodeTypeSquare,
@@ -42,6 +53,7 @@ typedef enum {
     [super viewDidLoad];
     
     self.graphTypeControl.selectedSegment = 0;              // Set graph type default to Square
+    self.graphState = 0;
 }
 
 -(void)viewDidAppear {
@@ -69,6 +81,40 @@ typedef enum {
     }
 }
 
+- (IBAction)toggle:(id)sender {
+    self.graphState++;
+    switch (self.graphState) {
+        case 3:
+            [self.bipartiteGraphNodes1 removeFromParentNode];
+            [self.bipartiteEdgeNodes1 removeFromParentNode];
+            
+            [self.bipartiteGraphNodes2 removeFromParentNode];
+            [self.bipartiteEdgeNodes2 removeFromParentNode];
+            
+            [self.otherGraphNodes removeFromParentNode];
+            [self.otherEdgeNodes removeFromParentNode];
+            
+            [self.graphSceneView.scene.rootNode addChildNode:self.bipartiteGraphNodes1];
+            [self.graphSceneView.scene.rootNode addChildNode:self.bipartiteEdgeNodes1];
+            
+            self.graphState = 0;
+            break;
+        case 1:
+            [self.bipartiteGraphNodes1 removeFromParentNode];
+            [self.bipartiteEdgeNodes1 removeFromParentNode];
+            
+            [self.graphSceneView.scene.rootNode addChildNode:self.bipartiteGraphNodes2];
+            [self.graphSceneView.scene.rootNode addChildNode:self.bipartiteEdgeNodes2];
+            break;
+        case 2:
+            [self.graphSceneView.scene.rootNode addChildNode:self.bipartiteGraphNodes1];
+            [self.graphSceneView.scene.rootNode addChildNode:self.bipartiteEdgeNodes1];
+            
+            [self.graphSceneView.scene.rootNode addChildNode:self.otherGraphNodes];
+            [self.graphSceneView.scene.rootNode addChildNode:self.otherEdgeNodes];
+            break;
+    }
+}
 
 
 #pragma mark - Core
@@ -81,9 +127,13 @@ typedef enum {
     self.adjacencyList = [self createAdjacencyListFromNodeList:nodeList];
     NSLog(@"Finished Creating Adjacency List");
     
+    self.colorData = [self.manager smallestLastFirst:self.adjacencyList];
+    self.numColors = (int)self.colorData.count;
+    
     // Graph adjacency list
     [self graphAdjacencyList];                  // Create visualizations from adjacency list
-    NSMutableArray* slfOrdering = [self.manager smallestLastFirst:self.adjacencyList];
+    
+    
 }
 
 
@@ -163,6 +213,7 @@ typedef enum {
 
 
 -(void)graphAdjacencyList {
+    [self generateColors];
     float avgX = 0.0,avgY = 0.0,avgZ = 0.0;
     // Release previous nodes
     //    NSArray* childNodes = self.graphSceneView.scene.rootNode.childNodes;
@@ -176,8 +227,13 @@ typedef enum {
     float numEdges = 0.0;
     
     // Create node to contain all graph nodes (vertices and edges)
-    SCNNode* graphNodes = [[SCNNode alloc] init];
-    SCNNode* edgeNodes = [[SCNNode alloc] init];
+    self.bipartiteGraphNodes1 = [[SCNNode alloc] init];
+    self.bipartiteGraphNodes2 = [[SCNNode alloc] init];
+    self.otherGraphNodes = [[SCNNode alloc] init];
+    
+    self.bipartiteEdgeNodes1 = [[SCNNode alloc] init];
+    self.bipartiteEdgeNodes2 = [[SCNNode alloc] init];
+    self.otherEdgeNodes = [[SCNNode alloc] init];
     
     // Create reusable sphere
     float nodeRadius = 0.25 / sqrtf(self.adjacencyList.count);
@@ -188,17 +244,13 @@ typedef enum {
         nodeRadius *= 2;
     }
     
-    SCNSphere* nodeSphere = [SCNSphere sphereWithRadius:nodeRadius];
-    nodeSphere.firstMaterial.diffuse.contents = [NSColor colorWithDeviceCyan:1.0 magenta:0.0 yellow:0.0 black:0.2 alpha:1.0];
-    nodeSphere.firstMaterial.specular.contents = [NSColor colorWithWhite:0.0 alpha:1.0];
-    
     // UI Correction for rotating sphere
     if (self.graphType == sphere) {
         SCNSphere* wobbleCorrection = [SCNSphere sphereWithRadius:1.0];
         wobbleCorrection.firstMaterial.diffuse.contents = [NSColor colorWithWhite:0.0 alpha:0.0];
         SCNNode* wobbleCorrectionNode = [SCNNode nodeWithGeometry:wobbleCorrection];
         wobbleCorrectionNode.position = SCNVector3Make(0.0, 0.0, 0.0);
-        [graphNodes addChildNode:wobbleCorrectionNode];
+        [self.graphSceneView.scene.rootNode addChildNode:wobbleCorrectionNode];
     }
     
     
@@ -210,37 +262,75 @@ typedef enum {
         avgY += [node.y floatValue];
         avgZ += [node.z floatValue];
         
-        SCNNode* vertexNode = [SCNNode nodeWithGeometry:nodeSphere];
-        vertexNode.position = SCNVector3Make([node.x floatValue], [node.y floatValue], [node.z floatValue]);
-        [graphNodes addChildNode:vertexNode];
+        SCNSphere* nodeSphere = [SCNSphere sphereWithRadius:nodeRadius];
+        NSColor* color = self.colors[[node.color intValue]];
+        nodeSphere.firstMaterial.diffuse.contents = color;
+        nodeSphere.firstMaterial.specular.contents = [NSColor colorWithWhite:0.0 alpha:1.0];
         
-        for (int i = 0; i < node.edges.count; i++) {
-            SCNNode* edgeNode = node.edges[i];
-//            if (edgeNodes.childNodes.count >= 50000) {
-//                SCNNode* flattenedEdgeNodes = [edgeNodes flattenedClone];
-//                [self.graphSceneView.scene.rootNode addChildNode:flattenedEdgeNodes];
-//                edgeNodes = [[SCNNode alloc] init];
-//            }
-            [edgeNodes addChildNode:edgeNode];
+        
+        NSNumber* bipartite1 = node.bipartite[@(0)];
+        NSNumber* bipartite2 = node.bipartite[@(1)];
+        
+        if ([bipartite1 intValue] == 1 || [bipartite2 intValue] == 1) {
+            if ([bipartite2 intValue] == 1) {
+                SCNNode* vertexNode = [SCNNode nodeWithGeometry:nodeSphere];
+                vertexNode.position = SCNVector3Make([node.x floatValue], [node.y floatValue], [node.z floatValue]);
+                [self.bipartiteGraphNodes2 addChildNode:vertexNode];
+            }
+            if ([bipartite1 intValue] == 1) {
+                SCNNode* vertexNode = [SCNNode nodeWithGeometry:nodeSphere];
+                vertexNode.position = SCNVector3Make([node.x floatValue], [node.y floatValue], [node.z floatValue]);
+                [self.bipartiteGraphNodes1 addChildNode:vertexNode];
+            }
+        }
+        else {
+            SCNNode* vertexNode = [SCNNode nodeWithGeometry:nodeSphere];
+            vertexNode.position = SCNVector3Make([node.x floatValue], [node.y floatValue], [node.z floatValue]);
+            [self.otherGraphNodes addChildNode:vertexNode];
+        }
+        
+        for (id key in node.edges) {
+            
+            SCNNode* edgeNode = node.edges[key];
+            
+            Node* connectedNode = self.adjacencyList[key];
+            NSNumber* connectedBipartite1 = connectedNode.bipartite[@(0)];
+            NSNumber* connectedBipartite2 = connectedNode.bipartite[@(1)];
+            
+            if (([bipartite1 intValue] == 1 && [connectedBipartite1 intValue] == 1) || ([bipartite2 intValue] == 1 && [connectedBipartite2 intValue] == 1) ){
+                if ([bipartite1 intValue] == 1 && [connectedBipartite1 intValue] == 1) {
+                    [self.bipartiteEdgeNodes1 addChildNode:edgeNode];
+                }
+                if ([bipartite2 intValue] == 1 && [connectedBipartite2 intValue] == 1) {
+                    [self.bipartiteEdgeNodes2 addChildNode:edgeNode];
+                }
+            }
+            else {
+                [self.otherEdgeNodes addChildNode:edgeNode];
+            }
+            
             numEdges++;
         }
+        
+        
+        
         node.edges = nil;   // Remove references to edges within the graph
     }
     NSLog(@"Updating Scene");
     
-//    SCNNode* flattenedGraphNodes = [graphNodes flattenedClone];
-    [self.graphSceneView.scene.rootNode addChildNode:graphNodes];
+    //    SCNNode* flattenedGraphNodes = [graphNodes flattenedClone];
+    [self.graphSceneView.scene.rootNode addChildNode:self.bipartiteGraphNodes1];
     
-    if (edgeNodes.childNodes.count > 30000) {
-        NSArray* partialNodes = [edgeNodes.childNodes subarrayWithRange:NSMakeRange(0, 30000)];
-        edgeNodes = [[SCNNode alloc] init];
-        for (int i = 0; i < partialNodes.count; i++) {
-            [edgeNodes addChildNode:partialNodes[i]];
-        }
-    }
+//    if (self.edgeNodes.childNodes.count > 30000) {
+//        NSArray* partialNodes = [self.edgeNodes.childNodes subarrayWithRange:NSMakeRange(0, 30000)];
+//        self.edgeNodes = [[SCNNode alloc] init];
+//        for (int i = 0; i < partialNodes.count; i++) {
+//            [self.edgeNodes addChildNode:partialNodes[i]];
+//        }
+//    }
     
-//    SCNNode* flattenedEdgeNodes = [edgeNodes flattenedClone];
-    [self.graphSceneView.scene.rootNode addChildNode:edgeNodes];
+    //    SCNNode* flattenedEdgeNodes = [edgeNodes flattenedClone];
+    [self.graphSceneView.scene.rootNode addChildNode:self.bipartiteEdgeNodes1];
     
     int numNodes = (int)self.adjacencyList.count;
     
@@ -251,10 +341,24 @@ typedef enum {
     NSLog(@"Nodes: %d\nEdges: %f\nAverage Degree: %f", numNodes, numEdges, 2.0*(numEdges/self.adjacencyList.count));
 }
 
+-(void)generateColors {
+    self.colors = [[NSMutableArray alloc] init];
+    for (int i = 0; i < self.numColors; i++) {
+        NSColor* newColor = [NSColor colorWithDeviceRed:[self rand] green:[self rand] blue:[self rand] alpha:1.0];
+        [self.colors addObject: newColor];
+    }
+}
+
+-(float)rand {
+    float precision = 100.0;
+    return arc4random_uniform(precision + 1.0) / precision;
+}
+
 
 
 #pragma mark - SceneKit Methods
 -(void)createScene {
+    self.graphState = 0;
     SCNScene* graphScene = [[SCNScene alloc] init];
     
     self.graphSceneView.scene = graphScene;
